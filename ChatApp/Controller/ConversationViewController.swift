@@ -84,6 +84,7 @@ class ConversationViewController: UIViewController {
                 vc.title = targetConversation.name
                 vc.navigationItem.largeTitleDisplayMode = .never
                 self.navigationController?.pushViewController(vc, animated: true)
+                
             } else {
                 self.createNewConversation(result: result)
             }
@@ -100,7 +101,6 @@ class ConversationViewController: UIViewController {
             guard let self = self else {
                 return
             }
-            
             switch result {
             case .failure(_):
                 let vc = ChatViewController(otherUserEmail: email, id: nil)
@@ -185,20 +185,18 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            tableView.beginUpdates()
             let conversation = conversations[indexPath.row]
             let conversationID = conversation.id
-            
-            DatabaseManager.share.deleteConversation(conversationID: conversationID) {[weak self] result in
+            DatabaseManager.share.deleteConversation(conversationID: conversationID) { [weak self] result in
                 if result {
                     self?.conversations.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath], with: .left)
+                    self?.tableView.beginUpdates()
+                    self?.tableView.deleteRows(at: [indexPath], with: .left)
+                    self?.tableView.endUpdates()
                 } else {
                     print("Delete conversation fail")
                 }
             }
-            
-            tableView.endUpdates()
         }
     }
     
