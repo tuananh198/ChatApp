@@ -22,9 +22,9 @@ class ConversationViewController: UIViewController {
     
     let noConversationLabel: UILabel = {
         let noConversationLabel = UILabel()
-        noConversationLabel.isHidden = true
+        noConversationLabel.text = "No Conversations!"
         noConversationLabel.textAlignment = .center
-        noConversationLabel.textColor = .gray
+        noConversationLabel.textColor = .lightGray
         noConversationLabel.font = .systemFont(ofSize: 21, weight: .medium)
         return noConversationLabel
     }()
@@ -38,7 +38,6 @@ class ConversationViewController: UIViewController {
         view.addSubview(noConversationLabel)
         tableView.delegate = self
         tableView.dataSource = self
-        fetchData()
         startListeningConversations()
     }
     
@@ -52,12 +51,16 @@ class ConversationViewController: UIViewController {
             switch result {
             case .success(let conversations):
                 guard conversations.isEmpty else {
+                    self?.tableView.isHidden = false
+                    self?.noConversationLabel.isHidden = true
                     self?.conversations = conversations
                     DispatchQueue.main.async {
                         self?.tableView.reloadData()
                     }
                     return
                 }
+                self?.tableView.isHidden = true
+                self?.noConversationLabel.isHidden = false
             case .failure(let error):
                 print("Get All conversation Fail or No conversation match with Email: \(error)")
             }
@@ -125,6 +128,10 @@ class ConversationViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        noConversationLabel.frame = CGRect(x: 0,
+                                           y: (view.frame.size.height - 100)/2,
+                                           width: view.frame.size.width,
+                                           height: 100)
     }
     
     func validateAuth() {
@@ -193,6 +200,10 @@ extension ConversationViewController: UITableViewDelegate, UITableViewDataSource
                     self?.tableView.beginUpdates()
                     self?.tableView.deleteRows(at: [indexPath], with: .left)
                     self?.tableView.endUpdates()
+                    if self?.conversations.count == 0 {
+                        self?.tableView.isHidden = true
+                        self?.noConversationLabel.isHidden = false
+                    }
                 } else {
                     print("Delete conversation fail")
                 }

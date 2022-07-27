@@ -53,13 +53,16 @@ class NewConversationCell: UITableViewCell {
     
     //Set Image cho User Avatar
     func configure(model: SearchResult) {
-        self.userNameLabel.text = model.name
+        userNameLabel.text = model.name
         let path = "images/\(model.email)-profile-picture.png"
         StorageManager.share.getUrlProfilePicture(path: path) { [weak self] result in
+            guard let self = self else {
+                return
+            }
             switch result {
             case .success(let url):
                 DispatchQueue.main.async {
-                    self?.userImageView.sd_setImage(with: url)
+                    self.userImageView.sd_setImage(with: url)
                 }
             case .failure(let error):
                 print(error)

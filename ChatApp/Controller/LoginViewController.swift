@@ -135,11 +135,12 @@ class LoginViewController: UIViewController {
     func showSimpleAlert(messeger: String) {
         let alert = UIAlertController(title: messeger, message: "", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        self.present(alert, animated: true)
+        present(alert, animated: true)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.fbLoginButton.delegate = self
         title = "Login"
         view.backgroundColor = .white
@@ -152,7 +153,7 @@ class LoginViewController: UIViewController {
             }
         }
         
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register", style: .done, target: self, action: #selector(registerClicked))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register", style: .done, target: self, action: #selector(registerClicked))
         view.addSubview(scrollView)
         scrollView.addSubview(imageView)
         scrollView.addSubview(emailField)
@@ -283,7 +284,6 @@ extension LoginViewController: LoginButtonDelegate {
                         }
                     }
                 }
-                
                 self.navigationController?.dismiss(animated: true)
             }
         })

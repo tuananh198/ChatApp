@@ -139,6 +139,7 @@ class RegisterViewController: UIViewController {
                                                emailAddress: email)
                     
                     let fullNameCurrentUser = "\(firstName) \(lastName)"
+                    
                     UserDefaults.standard.set(email, forKey: "email")
                     UserDefaults.standard.set(fullNameCurrentUser, forKey: "name")
                     
@@ -180,7 +181,7 @@ class RegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Login"
+        title = "Register"
         view.backgroundColor = .white
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Register", style: .done, target: self, action: #selector(registerClicked))

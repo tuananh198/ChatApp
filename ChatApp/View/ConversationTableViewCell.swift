@@ -66,8 +66,8 @@ class ConversationTableViewCell: UITableViewCell {
     
     //Set Image (Avatar) và Lastest Message cho Conversation
     func configure(model: Conversation) {
-        self.userNameLabel.text = model.name
-        self.userMessageLabel.text = model.lastestMessege.text
+        userNameLabel.text = model.name
+        userMessageLabel.text = model.lastestMessege.text
         let path = "images/\(model.otherEmail)-profile-picture.png"
         StorageManager.share.getUrlProfilePicture(path: path) { [weak self] result in
             switch result {

@@ -7,12 +7,18 @@
 
 import Foundation
 import MessageKit
+import CoreLocation
 
 struct Message: MessageType {
     var sender: SenderType
     var messageId: String
     var sentDate: Date
     var kind: MessageKind
+}
+
+struct Location: LocationItem {
+    var location: CLLocation
+    var size: CGSize
 }
 
 struct Media: MediaItem {
@@ -54,3 +60,4 @@ struct Sender: SenderType {
     var senderId: String
     var displayName: String
 }
+

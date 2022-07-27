@@ -20,7 +20,10 @@ class StorageManager {
     ) {
         storage.child("images/\(fileName)").putData(data,
                                                     metadata: nil)
-        { metaData, error in
+        { [weak self] metaData, error in
+            guard let self = self else {
+                return
+            }
             guard error == nil else {
                 print("Failed to upload to Firebase")
                 completion(.failure(error!))
@@ -45,7 +48,10 @@ class StorageManager {
     ) {
         storage.child("message_images/\(fileName)").putData(data,
                                                             metadata: nil)
-        { metaData, error in
+        { [weak self] metaData, error in
+            guard let self = self else {
+                return
+            }
             guard error == nil else {
                 print("Failed to upload photo message to Firebase")
                 completion(.failure(error!))
@@ -75,12 +81,15 @@ class StorageManager {
         storage.child("message_video/\(fileName)").putFile(from: url,
                                                            metadata: nil)
         { [weak self] metaData, error in
+            guard let self = self else {
+                return
+            }
             guard error == nil else {
                 print("Failed to upload video message to Firebase")
                 completion(.failure(error!))
                 return
             }
-            self?.storage.child("message_video/\(fileName)").downloadURL { url, error in
+            self.storage.child("message_video/\(fileName)").downloadURL { url, error in
                 guard let url = url, error == nil else {
                     print("Failed to get download url photo message")
                     completion(.failure(error!))

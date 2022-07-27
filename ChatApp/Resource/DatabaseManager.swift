@@ -9,6 +9,7 @@ import Foundation
 import FirebaseDatabase
 import MessageKit
 import SwiftUI
+import CoreLocation
 
 final class DatabaseManager {
     static let share = DatabaseManager()
@@ -61,7 +62,11 @@ extension DatabaseManager {
         database.child(user.safeEmail).setValue([
             "firstName": user.firstName,
             "lastName": user.lastName
-        ]) { error, _ in
+        ]) { [weak self] error, _ in
+            guard let self = self else {
+                return
+            }
+            
             guard error == nil else {
                 print("Failded to write database")
                 completion(false)
@@ -133,6 +138,9 @@ extension DatabaseManager {
         let safeEmail = DatabaseManager.share.safeEmail(emailAddress: email)
         
         database.child("\(safeEmail)").observeSingleEvent(of: .value) { [weak self] snapShot in
+            guard let self = self else {
+                return
+            }
             guard var userNode = snapShot.value as? [String: Any] else {
                 completion(false)
                 print("user not found")
@@ -191,7 +199,7 @@ extension DatabaseManager {
                 ]
             ]
             
-            self?.database.child("\(otherUserEmail)/conversation").observeSingleEvent(of: .value, with: { [weak self] snapShot in
+            self.database.child("\(otherUserEmail)/conversation").observeSingleEvent(of: .value, with: { [weak self] snapShot in
                 if var conversation = snapShot.value as? [[String: Any]] {
                     conversation.append(recipientNewConversationData)
                     self?.database.child("\(otherUserEmail)/conversation").setValue(conversation)
@@ -205,7 +213,7 @@ extension DatabaseManager {
             if var conversation = userNode["conversation"] as? [[String: Any]] {
                 conversation.append(newConversationData)
                 userNode["conversation"] = conversation
-                self?.database.child("\(safeEmail)").setValue(userNode) { [weak self] error, _ in
+                self.database.child("\(safeEmail)").setValue(userNode) { [weak self] error, _ in
                     guard error == nil else {
                         completion(false)
                         return
@@ -219,7 +227,7 @@ extension DatabaseManager {
                 }
             } else {
                 userNode["conversation"] = [newConversationData]
-                self?.database.child("\(safeEmail)").setValue(userNode) { [weak self] error, _ in
+                self.database.child("\(safeEmail)").setValue(userNode) { [weak self] error, _ in
                     guard error == nil else {
                         completion(false)
                         return
@@ -381,6 +389,16 @@ extension DatabaseManager {
                                       placeholderImage: placeholder,
                                       size: CGSize(width: 250, height: 250))
                     kind = .video(media)
+                } else if type == "location" {
+                    let coornate = content.components(separatedBy: ",")
+                    guard let lon = Double(coornate[0]),
+                          let lat = Double(coornate[1]) else {
+                        return nil
+                    }
+                    let locationItem = Location(location: CLLocation(latitude: lat,
+                                                                     longitude: lon),
+                                                size: CGSize(width: 300, height: 300))
+                    kind = .location(locationItem)
                 }
                 
                 let sender = Sender(photoURL: "",
@@ -441,7 +459,9 @@ extension DatabaseManager {
                     message = targetUrlString
                 }
                 break
-            case .location(_):
+            case .location(let locationData):
+                let location = locationData.location
+                message = "\(location.coordinate.longitude),\(location.coordinate.latitude)"
                 break
             case .emoji(_):
                 break
